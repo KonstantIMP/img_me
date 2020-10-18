@@ -6,5 +6,5 @@ import image;
 
 void main() {
     bmp_image a = new bmp_image;
-    a.parse_file("/home/kimp/Projects/img_me/test/bmp/1.bmp", true);
+    a.parse_file("/home/kimp/Projects/img_me/test/bmp/3.bmp", true);
 }

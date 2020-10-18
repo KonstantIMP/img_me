@@ -26,7 +26,7 @@ enum bmp_version : ubyte {
     BMP_UNSET_VER     = 0xFF  ///< Unset BMP file version
 };
 
-/// @brief Enumeration of supported MBP image compression methods
+/// @brief Enumeration of supported BMP image compression methods
 enum bmp_compression : ubyte {
     BMP_RGB            = 0x00, ///< Standart compression method (most common)
     BMP_RLE8           = 0x01, ///< With RLE 8-bit/pixel compression
@@ -38,6 +38,13 @@ enum bmp_compression : ubyte {
     BMP_CMYK           = 0x0B, ///< The image uses a CMYK color scheme
     BMP_CMYKRLE8       = 0x0C, ///< The image uses a CMYK color scheme with RLE 8-bit/pixel compression
     BMP_CMYKRLE4       = 0x0D  ///< The image uses a CMYK color scheme with RLE 4-bit/pixel compression
+};
+
+/// @brief Enumeration of supported BMP color spaces
+enum bmp_color_space : ubyte {
+    BMP_sRGB = 0x00, ///< sRGB color space (similiar on different devices)
+    BMP_RGB  = 0x01, ///<  RGB color space (diffirent on different devices)
+    BMP_CMYK = 0x02  ///< CMYK color space (diffirent on different devices)
 };
 
 /// @brief BMP file first header (To set .BMP format)
@@ -133,30 +140,49 @@ struct bmp_infoheader {
     uint need_color_num;
 }
 
+/// @brief Second .BMP file header for INFOHEADER_V4 version
 struct bmp_infoheader_v4 {
+    /// @brief Base header struct (infoheader_v4 is only supplemented infoheader)
     bmp_infoheader base_header;
 
+    /// @brief Mask for getting value of red
     uint red_mask;
+    /// @brief Mask for getting value of green
     uint green_mask;
+    /// @brief Mask for getting value of blue
     uint blue_mask;
+    /// @brief Mask for getting value of alpha
     uint alpha_mask;
 
-    uint color_space_type;
+    /// @brief Image color space type (sRGB, RGB or CMYK)
+    bmp_color_space color_space_type;
 
+    /// @brief End point coordinates for red (x value)
     int red_x;
+    /// @brief End point coordinates for red (y value)
     int red_y;
+    /// @brief End point coordinates for red (z value)
     int red_z;
 
+    /// @brief End point coordinates for green (x value)
     int green_x;
+    /// @brief End point coordinates for green (y value)
     int green_y;
+    /// @brief End point coordinatesfor green (z value)
     int green_z;
 
+    /// @brief End point coordinates for blue (x value)
     int blue_x;
+    /// @brief End point coordinates for blue (y value)
     int blue_y;
+    /// @brief End point coordinates for blue (z value)
     int blue_z;
 
+    /// @brief Tone response curve for red
     uint gamma_red;
+    /// @brief Tone response curve for green
     uint gamma_green;
+    /// @brief Tone response curve for blue
     uint gamma_blue;
 }
 
@@ -208,6 +234,10 @@ class bmp_image {
             case bmp_version.BMP_INFOHEADER :
                 if(is_debug) writefln("\tUsing header struct : bmp_infoheader");
                 parse_infoheader(image_file, is_debug);
+            break;
+            case bmp_version.BMP_INFOHEADER_v4 :
+                if(is_debug) writefln("\tUsing header struct : bmp_infoheader_v4");
+                parse_infoheader_v4(image_file, is_debug);
             break;
             default: break;
         }   
@@ -330,7 +360,126 @@ class bmp_image {
     }
 
     private void parse_infoheader(File * image_file, bool is_debug) @trusted {
+        ubyte [] buf; buf.length = 4;
+        image_file.rawRead(buf);
 
+        bmp_infoheader tmp_header;
+        tmp_header.header_size = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tHeader size is : ", tmp_header.header_size);
+
+        if(tmp_header.header_size != cast(uint)(bmp_version.BMP_INFOHEADER   ) && 
+           tmp_header.header_size != cast(uint)(bmp_version.BMP_INFOHEADER_v4) &&
+           tmp_header.header_size != cast(uint)(bmp_version.BMP_INFOHEADER_v5)) {
+            if(is_debug) writeln("[DEBUG][ERROR] Incorrect header size value");
+            throw new ErrnoException("Incorrect header size value");
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.img_width = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tImage width is : ", tmp_header.img_width, " px");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.img_height = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tImage height is : ", tmp_header.img_height, " px");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.surface_num =(buf[1] << 8) | buf[0];
+        tmp_header.pixel_weight = (buf[3] << 8) | buf[2];
+
+        if(is_debug) writeln("\tNumber of image surfaces : ", tmp_header.surface_num);
+
+        if(tmp_header.surface_num != 1) {
+            if(is_debug) writeln("[DEBUG][ERROR] Number of surfaces is not 1");
+            throw new ErrnoException("Incorrect number of surfaces (It must be 1)");
+        }
+
+        if(is_debug) writeln("\tPixel weight is : ", tmp_header.pixel_weight, " bit-per-pixel");
+
+        if(tmp_header.pixel_weight !=  1 &&
+           tmp_header.pixel_weight !=  4 &&
+           tmp_header.pixel_weight !=  8 &&
+           tmp_header.pixel_weight != 24 &&
+           tmp_header.pixel_weight != 32) {
+            if(is_debug) writeln("[DEBUG][ERROR] Incorrect pixel weight value");
+            throw new ErrnoException("Incorrect pixel weight value");
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.compression_type = cast(bmp_compression)((buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0]);
+
+        if(is_debug) writeln("\tCompression type is : ", tmp_header.compression_type);
+
+        if(tmp_header.compression_type != bmp_compression.BMP_ALPHABITFIELDS && 
+           tmp_header.compression_type !=      bmp_compression.BMP_BITFIELDS &&
+           tmp_header.compression_type !=           bmp_compression.BMP_CMYK &&
+           tmp_header.compression_type !=       bmp_compression.BMP_CMYKRLE4 &&
+           tmp_header.compression_type !=       bmp_compression.BMP_CMYKRLE8 && 
+           tmp_header.compression_type !=           bmp_compression.BMP_JPEG &&
+           tmp_header.compression_type !=            bmp_compression.BMP_PNG &&
+           tmp_header.compression_type !=            bmp_compression.BMP_RGB &&
+           tmp_header.compression_type !=           bmp_compression.BMP_RLE4 &&
+           tmp_header.compression_type !=           bmp_compression.BMP_RLE8) {
+            if(is_debug) writeln("[DEBUG][ERROR] Incorrect compression type");
+            throw new ErrnoException("Incorrect compression type");
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.img_data_size = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tImage data size is : ", tmp_header.img_data_size, " bytes");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.horizontal_res = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tHorizontal resolution is : ", tmp_header.horizontal_res, " pixel-per-meter");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.vertical_res = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tHVertical resolution is : ", tmp_header.vertical_res, " pixel-per-meter");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.used_color_num = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tNumber of colors in pallete : ", tmp_header.used_color_num);
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.need_color_num = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tNumber of used colors in pallete : ", tmp_header.need_color_num);
+
+        second_image_header = tmp_header;
+    }
+
+    private void parse_infoheader_v4(File * image_file, bool is_debug) @trusted {
+        parse_infoheader(image_file, is_debug);
+
+        bmp_infoheader_v4 tmp_header;
+
+        tmp_header.base_header = second_image_header.get!(bmp_infoheader);
+
+        ubyte [] buf; buf.length = 4;
     }
 
     private bmp_header image_header;
