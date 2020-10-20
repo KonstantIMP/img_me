@@ -41,10 +41,23 @@ enum bmp_compression : ubyte {
 };
 
 /// @brief Enumeration of supported BMP color spaces
-enum bmp_color_space : ubyte {
-    BMP_sRGB = 0x00, ///< sRGB color space (similiar on different devices)
+enum bmp_color_space : uint {
+    BMP_CRGB = 0x00, ///< Colibrated RGB color space (similiar on different devices)
     BMP_RGB  = 0x01, ///<  RGB color space (diffirent on different devices)
-    BMP_CMYK = 0x02  ///< CMYK color space (diffirent on different devices)
+    BMP_CMYK = 0x02, ///< CMYK color space (diffirent on different devices)
+    /// V5 color cpaces
+    BMP_sRGB     = cast(ubyte)('s') << 24 | cast(ubyte)('R') << 16 | cast(ubyte)('G') << 8 | cast(ubyte)('B'),
+    BMP_winCS    = cast(ubyte)('W') << 24 | cast(ubyte)('i') << 16 | cast(ubyte)('n') << 8 | cast(ubyte)(' '),
+    BMP_LINKED   = cast(ubyte)('L') << 24 | cast(ubyte)('I') << 16 | cast(ubyte)('N') << 8 | cast(ubyte)('K'),
+    BMP_EMBEDDED = cast(ubyte)('M') << 24 | cast(ubyte)('B') << 16 | cast(ubyte)('E') << 8 | cast(ubyte)('D')
+};
+
+/// @brief Enumeration of supperted intent types
+enum bmp_intent_type : ubyte {
+    BMP_GM_ABS = 0x08,
+    BMP_GM_BUS = 0x01,
+    BMP_GM_GRA = 0x02,
+    BMP_GM_IMG = 0x04
 };
 
 /// @brief BMP file first header (To set .BMP format)
@@ -190,7 +203,7 @@ struct bmp_infoheader_v4 {
 struct bmp_infoheader_v5 {
     bmp_infoheader_v4 base_header;
 
-    uint render_type;
+    bmp_intent_type render_type;
 
     uint profile_data_offset;
 
@@ -238,6 +251,10 @@ class bmp_image {
             case bmp_version.BMP_INFOHEADER_v4 :
                 if(is_debug) writefln("\tUsing header struct : bmp_infoheader_v4");
                 parse_infoheader_v4(image_file, is_debug);
+            break;
+            case bmp_version.BMP_INFOHEADER_v5 :
+                if(is_debug) writefln("\tUsing header struct : bmp_infoheader_v5");
+                parse_infoheader_v5(image_file, is_debug);
             break;
             default: break;
         }   
@@ -480,6 +497,153 @@ class bmp_image {
         tmp_header.base_header = second_image_header.get!(bmp_infoheader);
 
         ubyte [] buf; buf.length = 4;
+        image_file.rawRead(buf);
+
+        tmp_header.red_mask = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.green_mask = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.blue_mask = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.alpha_mask = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) {
+            writefln("\tRed mask is : %x", tmp_header.red_mask);
+            writefln("\tGreen mask is : %x", tmp_header.green_mask);
+            writefln("\tBlue mask is : %x", tmp_header.blue_mask);
+            writefln("\tAlpha mask is : %x", tmp_header.alpha_mask);
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+
+        tmp_header.color_space_type = cast(bmp_color_space)((buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0]);
+        if(is_debug) writeln("\tColor space type is : ", tmp_header.color_space_type);
+
+        if(tmp_header.color_space_type !=     bmp_color_space.BMP_CMYK && 
+           tmp_header.color_space_type !=      bmp_color_space.BMP_RGB &&
+           tmp_header.color_space_type !=     bmp_color_space.BMP_CRGB &&
+           tmp_header.color_space_type != bmp_color_space.BMP_EMBEDDED &&
+           tmp_header.color_space_type !=   bmp_color_space.BMP_LINKED &&
+           tmp_header.color_space_type !=     bmp_color_space.BMP_sRGB &&
+           tmp_header.color_space_type !=    bmp_color_space.BMP_winCS) {
+            if(is_debug) writeln("[DEBUG][ERROR] Incoorect color space");
+            throw new ErrnoException("Image contains incorrect color space type");
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.red_x = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.red_y = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.red_z = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.green_x = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.green_y = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.green_z = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.blue_x = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.blue_y = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0; image_file.rawRead(buf);
+        tmp_header.blue_z = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) {
+            writefln("\tRed end point coordinates (x.y.z) : %d.%d.%d", tmp_header.red_x, tmp_header.red_y, tmp_header.red_z);
+            writefln("\tGreen end point coordinates (x.y.z) : %d.%d.%d", tmp_header.green_x, tmp_header.green_y, tmp_header.green_z);
+            writefln("\tBlue end point coordinates (x.y.z) : %d.%d.%d", tmp_header.blue_x, tmp_header.blue_y, tmp_header.blue_z);
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+    
+        tmp_header.gamma_red = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+    
+        tmp_header.gamma_green = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+    
+        tmp_header.gamma_blue = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) {
+            writeln("\tRed gamma : ", tmp_header.gamma_red);
+            writeln("\tGreen gamma : ", tmp_header.gamma_green);
+            writeln("\tBlue gamma : ", tmp_header.gamma_blue);
+        }
+
+        second_image_header = tmp_header;
+    }
+
+    private void parse_infoheader_v5(File * image_file, bool is_debug) @trusted {
+        parse_infoheader_v4(image_file, is_debug);
+
+        bmp_infoheader_v5 tmp_header;
+        tmp_header.base_header = second_image_header.get!(bmp_infoheader_v4);
+
+        ubyte [] buf; buf.length = 4;
+        image_file.rawRead(buf);
+
+        tmp_header.render_type = cast(bmp_intent_type)(buf[0]);
+
+        if(is_debug) writeln("\tIntent type : ", tmp_header.render_type);
+
+        if(tmp_header.render_type != bmp_intent_type.BMP_GM_ABS &&
+           tmp_header.render_type != bmp_intent_type.BMP_GM_BUS &&
+           tmp_header.render_type != bmp_intent_type.BMP_GM_GRA &&
+           tmp_header.render_type != bmp_intent_type.BMP_GM_IMG) {
+            if(is_debug) writeln("[DEBUG][ERROR] Incorrect intent type");
+            throw new ErrnoException("The image file contains incorrect intent(render) type");
+        }
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.profile_data_offset = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tProfile data offset : ", tmp_header.profile_data_offset, " bytes");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.profile_data_size = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writeln("\tProfile data size : ", tmp_header.profile_data_size, " bytes");
+
+        buf[0] = buf[1] = buf[2] = buf[3] = 0;
+        image_file.rawRead(buf);
+
+        tmp_header.reserved_z = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
+
+        if(is_debug) writefln("\tProfile data offset : %d bytes", tmp_header.profile_data_offset);
+
+        if(tmp_header.reserved_z != 0) {
+            if(is_debug) writeln("[DEBUG][ERROR] Reserved bytee is not 0x00000000");
+            throw new ErrnoException("Incorrect BMP header (reserved bytes is not 0x00000000)");
+        }
+
+        second_image_header = tmp_header;
     }
 
     private bmp_header image_header;
