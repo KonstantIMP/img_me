@@ -1,4 +1,5 @@
 /**
+ * @file defines.d
  * @brief      This file implements basic color spaces defines.
  *
  * @author     KonstantIMP
