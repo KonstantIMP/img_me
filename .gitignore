@@ -22,3 +22,11 @@ docs/
 
 # Code coverage
 *.lst
+
+# Doxygen
+latex/
+html/
+
+# Meson builddir
+build/
+builddir/

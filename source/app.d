@@ -1,6 +1,11 @@
 import std.string;
 import std.stdio;
 
-void main() {
+import uncompressed_image.defines;
 
+
+void main() {
+    rgb_color woof;
+    woof.r = 3;
+    writeln(woof.red);
 }

@@ -12,7 +12,7 @@ gtkd_dep = dependency('gtkd-3')
 uncompressed_image_source = [
     'source/uncompressed_image/image.d',
     'source/uncompressed_image/defines.d',
-    'source/uncompressed_image/image_translater.d'
+    'source/uncompressed_image/color_translater.d'
 ]
 uncompressed_image_lib = static_library('uncompressed_image',
     uncompressed_image_source, include_directories : [source_dir])
