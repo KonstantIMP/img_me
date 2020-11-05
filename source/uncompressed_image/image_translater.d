@@ -1,0 +1,1 @@
+module uncompressed_image.image_translater;
