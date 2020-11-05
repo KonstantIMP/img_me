@@ -9,11 +9,11 @@ module uncompressed_image.defines;
 /// @brief This struct describes a rgb color.
 struct rgb_color {
     /// @brief Amount of red chanel in color
-    double red;
+    double red = 0.0;
     /// @brief Amoint of green chanel in color
-    double green;
+    double green = 0.0;
     /// @brief Amount of blue chanel in color
-    double blue;
+    double blue = 0.0;
 
     /// @brief Simple way to work with red chanel
     alias r = red;
@@ -26,14 +26,14 @@ struct rgb_color {
 /// @brief This struct describes a rgba color.
 struct rgba_color {
     /// @brief Amount of red chanel in color
-    double red;
+    double red = 0.0;
     /// @brief Amount of green chanel in color
-    double green;
+    double green = 0.0;
     /// @brief Amount of blue chanel in color
-    double blue;
+    double blue = 0.0;
 
     /// @brief Amount of alpha chanel in color (transparency level)
-    double alpha;
+    double alpha = 0.0;
 
     /// @brief Simple way to work with red chanel
     alias r = red;
@@ -48,11 +48,11 @@ struct rgba_color {
 /// @brief This struct describes a cmy color.
 struct cmy_color {
     /// @brief Amount of cyan color
-    double cyan;
+    double cyan = 0.0;
     /// @brief Amount of magenta color
-    double magenta;
+    double magenta = 0.0;
     /// @brief Amount of yellow color
-    double yellow;
+    double yellow = 0.0;
 
     /// @brief Simple way to work with cyan chanel
     alias c = cyan;
@@ -65,13 +65,13 @@ struct cmy_color {
 /// @brief This struct describes a cmyk color.
 struct cmyk_color {
     /// @brief Amount of cyan color
-    double cyan;
+    double cyan = 0.0;
     /// @brief Amount of magenta color
-    double magenta;
+    double magenta = 0.0;
     /// @brief Amount of yellow color
-    double yellow;
+    double yellow = 0.0;
     /// @brief Amount of key(black) color
-    double key;
+    double key = 0.0;
 
     /// @brief Amount of key(black) color
     alias black = key;
