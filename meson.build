@@ -17,12 +17,13 @@ uncompressed_image_source = [
 uncompressed_image_lib = static_library('uncompressed_image',
     uncompressed_image_source, include_directories : [source_dir])
 
-pam_source = [
-    'source/pam/pam_me.d',
-    'source/pam/pam_defines.d'
+pnm_source = [
+    'source/pnm/pnm_me.d',
+    'source/pnm/pnm_defines.d',
+    'source/pnm/pnm_parser.d'
 ]
-pam_lib = static_library('pam', pam_source, include_directories : [source_dir])
+pnm_lib = static_library('pnm', pnm_source, include_directories : [source_dir], link_with : [uncompressed_image_lib])
 
 img_me_bin = executable('img_me', [img_me_sorce],
     include_directories : [source_dir],
-    link_with : [pam_lib, uncompressed_image_lib])
+    link_with : [pnm_lib, uncompressed_image_lib])

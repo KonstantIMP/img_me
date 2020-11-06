@@ -18,7 +18,7 @@ import std.algorithm;
  *
  * @return Translated RgbaColor
  */
-RgbaColor rgbToRgba(RgbColor input_color) @safe @nogc {
+RgbaColor rgbToRgba(RgbColor input_color) @safe @nogc nothrow {
     RgbaColor ret;
     ret.r = input_color.r;
     ret.g = input_color.g;
@@ -34,7 +34,7 @@ RgbaColor rgbToRgba(RgbColor input_color) @safe @nogc {
  *
  * @return Translated RgbColor
  */
-RgbColor rgbaToRgb(RgbaColor input_color) @safe @nogc {
+RgbColor rgbaToRgb(RgbaColor input_color) @safe @nogc nothrow {
     RgbColor ret;
     ret.r = input_color.r;
     ret.g = input_color.g;
@@ -49,7 +49,7 @@ RgbColor rgbaToRgb(RgbaColor input_color) @safe @nogc {
  *
  * @return Translated CmyColor
  */
-CmyColor rgbToCmy(RgbColor input_color) @safe @nogc {
+CmyColor rgbToCmy(RgbColor input_color) @safe @nogc nothrow {
     CmyColor ret;
     ret.c = 1 - input_color.r;
     ret.m = 1 - input_color.g;
@@ -64,7 +64,7 @@ CmyColor rgbToCmy(RgbColor input_color) @safe @nogc {
  *
  * @return Translated RgbColor
  */
-RgbColor cmyToRgb(CmyColor input_color) @safe @nogc {
+RgbColor cmyToRgb(CmyColor input_color) @safe @nogc nothrow {
     RgbColor ret;
     ret.r = 1 - input_color.c;
     ret.g = 1 - input_color.m;
@@ -79,7 +79,7 @@ RgbColor cmyToRgb(CmyColor input_color) @safe @nogc {
  *
  * @return Translated CmyColor
  */
-CmyColor cmykToCmy(CmykColor input_color) @safe @nogc {
+CmyColor cmykToCmy(CmykColor input_color) @safe @nogc nothrow {
     CmyColor ret;
     ret.c = (input_color.c * (1 - input_color.k) + input_color.k);
     ret.m = (input_color.m * (1 - input_color.k) + input_color.k);
@@ -94,7 +94,7 @@ CmyColor cmykToCmy(CmykColor input_color) @safe @nogc {
  *
  * @return Translated CmykColor
  */
-CmykColor rgbToCmyk(RgbColor input_color) @safe @nogc {
+CmykColor rgbToCmyk(RgbColor input_color) @safe @nogc nothrow {
     CmykColor ret;
     ret.k = 1 - max(max(input_color.r, input_color.g), input_color.b);
     ret.c = (1 - input_color.r - ret.k) / (1 - ret.k);
@@ -110,7 +110,7 @@ CmykColor rgbToCmyk(RgbColor input_color) @safe @nogc {
  *
  * @return Translated CmyColor
  */
-CmyColor rgbaToCmy(RgbaColor input_color) @safe @nogc {
+CmyColor rgbaToCmy(RgbaColor input_color) @safe @nogc nothrow {
     return rgbToCmy(rgbaToRgb(input_color));
 }
 
@@ -121,7 +121,7 @@ CmyColor rgbaToCmy(RgbaColor input_color) @safe @nogc {
  *
  * @return Translated CmykColor
  */
-CmykColor rgbaToCmyk(RgbaColor input_color) @safe @nogc {
+CmykColor rgbaToCmyk(RgbaColor input_color) @safe @nogc nothrow {
     return rgbToCmyk(rgbaToRgb(input_color));
 }
 
@@ -132,7 +132,7 @@ CmykColor rgbaToCmyk(RgbaColor input_color) @safe @nogc {
  *
  * @return Translated RgbaColor
  */
-RgbaColor cmyToRgba(CmyColor input_color) @safe @nogc {
+RgbaColor cmyToRgba(CmyColor input_color) @safe @nogc nothrow {
     return rgbToRgba(cmyToRgb(input_color));
 }
 
@@ -143,7 +143,7 @@ RgbaColor cmyToRgba(CmyColor input_color) @safe @nogc {
  *
  * @return Translated CmykColor
  */
-CmykColor cmyToCmyk(CmyColor input_color) @safe @nogc {
+CmykColor cmyToCmyk(CmyColor input_color) @safe @nogc nothrow {
     return rgbToCmyk(cmyToRgb(input_color));
 }
 
@@ -154,7 +154,7 @@ CmykColor cmyToCmyk(CmyColor input_color) @safe @nogc {
  *
  * @return Translated RgbColor
  */
-RgbColor cmykToRgb(CmykColor input_color) @safe @nogc {
+RgbColor cmykToRgb(CmykColor input_color) @safe @nogc nothrow {
     return cmyToRgb(cmykToCmy(input_color));
 }
 
@@ -165,7 +165,7 @@ RgbColor cmykToRgb(CmykColor input_color) @safe @nogc {
  *
  * @return Translated RgbaColor
  */
-RgbaColor cmykToRgba(CmykColor input_color) @safe @nogc {
+RgbaColor cmykToRgba(CmykColor input_color) @safe @nogc nothrow {
     return cmyToRgba(cmykToCmy(input_color));
 }
 

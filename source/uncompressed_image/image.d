@@ -20,7 +20,11 @@ class Image(T) if (is(T == RgbColor) || is(T == RgbaColor) || is(T == CmyColor) 
         }
     }
 
-    public void clear(T source_color = T()) {
+    public ~this() @safe {
+        clearMemory();
+    }
+
+    public void clear(T source_color = T()) @safe @nogc {
         for(size_t i = 0; i < image_height; i++) {
             for(size_t j = 0; j < image_width; j++) {
                 img_data[i][j] = source_color;
