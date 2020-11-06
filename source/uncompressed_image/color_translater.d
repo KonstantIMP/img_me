@@ -12,14 +12,14 @@ import uncompressed_image.defines;
 import std.algorithm;
 
 /**
- * @brief Translater from rgb_color to rgba_color
+ * @brief Translater from RgbColor to RgbaColor
  *
- * @param[in] input_color The rgb_color for translation
+ * @param[in] input_color The RgbColor for translation
  *
- * @return Translated rgba_color
+ * @return Translated RgbaColor
  */
-rgba_color rgbToRgba(rgb_color input_color) @safe @nogc {
-    rgba_color ret;
+RgbaColor rgbToRgba(RgbColor input_color) @safe @nogc {
+    RgbaColor ret;
     ret.r = input_color.r;
     ret.g = input_color.g;
     ret.b = input_color.b;
@@ -28,14 +28,14 @@ rgba_color rgbToRgba(rgb_color input_color) @safe @nogc {
 }
 
 /**
- * @brief Translater from rgba_color to rgb_color
+ * @brief Translater from RgbaColor to RgbColor
  *
- * @param[in] input_color The rgba_color for translation
+ * @param[in] input_color The RgbaColor for translation
  *
- * @return Translated rgb_color
+ * @return Translated RgbColor
  */
-rgb_color rgbaToRgb(rgba_color input_color) @safe @nogc {
-    rgb_color ret;
+RgbColor rgbaToRgb(RgbaColor input_color) @safe @nogc {
+    RgbColor ret;
     ret.r = input_color.r;
     ret.g = input_color.g;
     ret.b = input_color.b;
@@ -43,14 +43,14 @@ rgb_color rgbaToRgb(rgba_color input_color) @safe @nogc {
 }
 
 /**
- * @brief Translater from rgb_color to cmy_color
+ * @brief Translater from RgbColor to CmyColor
  *
- * @param[in] input_color The rgb_color for translation
+ * @param[in] input_color The RgbColor for translation
  *
- * @return Translated cmy_color
+ * @return Translated CmyColor
  */
-cmy_color rgbToCmy(rgb_color input_color) @safe @nogc {
-    cmy_color ret;
+CmyColor rgbToCmy(RgbColor input_color) @safe @nogc {
+    CmyColor ret;
     ret.c = 1 - input_color.r;
     ret.m = 1 - input_color.g;
     ret.y = 1 - input_color.b;
@@ -58,14 +58,14 @@ cmy_color rgbToCmy(rgb_color input_color) @safe @nogc {
 }
 
 /**
- * @brief Translater from cmy_color to rgb_color
+ * @brief Translater from CmyColor to RgbColor
  *
- * @param[in] input_color The cmy_color for translation
+ * @param[in] input_color The CmyColor for translation
  *
- * @return Translated rgb_color
+ * @return Translated RgbColor
  */
-rgb_color cmyToRgb(cmy_color input_color) @safe @nogc {
-    rgb_color ret;
+RgbColor cmyToRgb(CmyColor input_color) @safe @nogc {
+    RgbColor ret;
     ret.r = 1 - input_color.c;
     ret.g = 1 - input_color.m;
     ret.b = 1 - input_color.y;
@@ -73,14 +73,14 @@ rgb_color cmyToRgb(cmy_color input_color) @safe @nogc {
 }
 
 /**
- * @brief Translater from cmyk_color to cmy_color
+ * @brief Translater from CmykColor to CmyColor
  *
- * @param[in] input_color The cmyk_color for translation
+ * @param[in] input_color The CmykColor for translation
  *
- * @return Translated cmy_color
+ * @return Translated CmyColor
  */
-cmy_color cmykToCmy(cmyk_color input_color) @safe @nogc {
-    cmy_color ret;
+CmyColor cmykToCmy(CmykColor input_color) @safe @nogc {
+    CmyColor ret;
     ret.c = (input_color.c * (1 - input_color.k) + input_color.k);
     ret.m = (input_color.m * (1 - input_color.k) + input_color.k);
     ret.y = (input_color.y * (1 - input_color.k) + input_color.k);
@@ -88,14 +88,14 @@ cmy_color cmykToCmy(cmyk_color input_color) @safe @nogc {
 }
 
 /**
- * @brief Translater from rgb_color to cmyk_color
+ * @brief Translater from RgbColor to CmykColor
  *
- * @param[in] input_color The rgb_color for translation
+ * @param[in] input_color The RgbColor for translation
  *
- * @return Translated cmyk_color
+ * @return Translated CmykColor
  */
-cmyk_color rgbToCmyk(rgb_color input_color) @safe @nogc {
-    cmyk_color ret;
+CmykColor rgbToCmyk(RgbColor input_color) @safe @nogc {
+    CmykColor ret;
     ret.k = 1 - max(max(input_color.r, input_color.g), input_color.b);
     ret.c = (1 - input_color.r - ret.k) / (1 - ret.k);
     ret.m = (1 - input_color.g - ret.k) / (1 - ret.k);
@@ -104,67 +104,95 @@ cmyk_color rgbToCmyk(rgb_color input_color) @safe @nogc {
 }
 
 /**
- * @brief Translater from rgba_color to cmy_color
+ * @brief Translater from RgbaColor to CmyColor
  *
- * @param[in] input_color The rgba_color for translation
+ * @param[in] input_color The RgbaColor for translation
  *
- * @return Translated cmy_color
+ * @return Translated CmyColor
  */
-cmy_color rgbaToCmy(rgba_color input_color) @safe @nogc {
+CmyColor rgbaToCmy(RgbaColor input_color) @safe @nogc {
     return rgbToCmy(rgbaToRgb(input_color));
 }
 
 /**
- * @brief Translater from rgba_color to cmyk_color
+ * @brief Translater from RgbaColor to CmykColor
  *
- * @param[in] input_color The rgba_color for translation
+ * @param[in] input_color The RgbaColor for translation
  *
- * @return Translated cmyk_color
+ * @return Translated CmykColor
  */
-cmyk_color rgbaToCmyk(rgba_color input_color) @safe @nogc {
+CmykColor rgbaToCmyk(RgbaColor input_color) @safe @nogc {
     return rgbToCmyk(rgbaToRgb(input_color));
 }
 
 /**
- * @brief Translater from cmy_color to rgba_color
+ * @brief Translater from CmyColor to RgbaColor
  *
- * @param[in] input_color The cmy_color for translation
+ * @param[in] input_color The CmyColor for translation
  *
- * @return Translated rgba_color
+ * @return Translated RgbaColor
  */
-rgba_color cmyToRgba(cmy_color input_color) @safe @nogc {
+RgbaColor cmyToRgba(CmyColor input_color) @safe @nogc {
     return rgbToRgba(cmyToRgb(input_color));
 }
 
 /**
- * @brief Translater from cmy_color to cmyk_color
+ * @brief Translater from CmyColor to CmykColor
  *
- * @param[in] input_color The cmy_color for translation
+ * @param[in] input_color The CmyColor for translation
  *
- * @return Translated cmyk_color
+ * @return Translated CmykColor
  */
-cmyk_color cmyToCmyk(cmy_color input_color) @safe @nogc {
+CmykColor cmyToCmyk(CmyColor input_color) @safe @nogc {
     return rgbToCmyk(cmyToRgb(input_color));
 }
 
 /**
- * @brief Translater from cmyk_color to rgb_color
+ * @brief Translater from CmykColor to RgbColor
  *
- * @param[in] input_color The cmyk_color for translation
+ * @param[in] input_color The CmykColor for translation
  *
- * @return Translated rgb_color
+ * @return Translated RgbColor
  */
-rgb_color cmykToRgb(cmyk_color input_color) @safe @nogc {
+RgbColor cmykToRgb(CmykColor input_color) @safe @nogc {
     return cmyToRgb(cmykToCmy(input_color));
 }
 
 /**
- * @brief Translater from cmyk_color to rgba_color
+ * @brief Translater from CmykColor to RgbaColor
  *
- * @param[in] input_color The cmyk_color for translation
+ * @param[in] input_color The CmykColor for translation
  *
- * @return Translated rgba_color
+ * @return Translated RgbaColor
  */
-rgba_color cmykToRgba(cmyk_color input_color) @safe @nogc {
+RgbaColor cmykToRgba(CmykColor input_color) @safe @nogc {
     return cmyToRgba(cmykToCmy(input_color));
+}
+
+template to(T : CmyColor) {
+    T to(S : CmyColor)(S parent_color) { return parent_color; }
+    T to(S : RgbColor)(S parent_color) { return rgbToCmy(parent_color); }
+    T to(S : CmykColor)(S parent_color) { return cmykToCmy(parent_color); }
+    T to(S : RgbaColor)(S parent_color) { return rgbaToCmy(parent_color); }
+}
+
+template to(T : RgbColor) {
+    T to(S : CmyColor)(S parent_color) { return cmyToRgb(parent_color); }
+    T to(S : RgbColor)(S parent_color) { return parent_color; }
+    T to(S : CmykColor)(S parent_color) { return cmykToRgb(parent_color); }
+    T to(S : RgbaColor)(S parent_color) { return rgbaToRgb(parent_color); }
+}
+
+template to(T : CmykColor) {
+    T to(S : CmyColor)(S parent_color) { return cmyToCmyk(parent_color); }
+    T to(S : RgbColor)(S parent_color) { return rgbToCmyk(parent_color); }
+    T to(S : CmykColor)(S parent_color) { return parent_color; }
+    T to(S : RgbaColor)(S parent_color) { return rgbaToCmyk(parent_color); }
+}
+
+template to(T : RgbaColor) {
+    T to(S : CmyColor)(S parent_color) { return cmyToRgba(parent_color); }
+    T to(S : RgbColor)(S parent_color) { return rgbToRgba(parent_color); }
+    T to(S : CmykColor)(S parent_color) { return cmykToRgba(parent_color); }
+    T to(S : RgbaColor)(S parent_color) { return parent_color; }
 }

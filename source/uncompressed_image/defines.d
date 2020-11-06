@@ -8,7 +8,7 @@
 module uncompressed_image.defines;
 
 /// @brief This struct describes a rgb color.
-struct rgb_color {
+struct RgbColor {
     /// @brief Amount of red chanel in color
     double red = 0.0;
     /// @brief Amoint of green chanel in color
@@ -25,7 +25,7 @@ struct rgb_color {
 }
 
 /// @brief This struct describes a rgba color.
-struct rgba_color {
+struct RgbaColor {
     /// @brief Amount of red chanel in color
     double red = 0.0;
     /// @brief Amount of green chanel in color
@@ -47,7 +47,7 @@ struct rgba_color {
 }
 
 /// @brief This struct describes a cmy color.
-struct cmy_color {
+struct CmyColor {
     /// @brief Amount of cyan color
     double cyan = 0.0;
     /// @brief Amount of magenta color
@@ -64,7 +64,7 @@ struct cmy_color {
 }
 
 /// @brief This struct describes a cmyk color.
-struct cmyk_color {
+struct CmykColor {
     /// @brief Amount of cyan color
     double cyan = 0.0;
     /// @brief Amount of magenta color
