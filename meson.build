@@ -26,4 +26,5 @@ pnm_lib = static_library('pnm', pnm_source, include_directories : [source_dir], 
 
 img_me_bin = executable('img_me', [img_me_sorce],
     include_directories : [source_dir],
-    link_with : [pnm_lib, uncompressed_image_lib])
+    link_with : [pnm_lib, uncompressed_image_lib],
+    dependencies : [gtkd_dep])

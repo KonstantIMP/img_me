@@ -4,7 +4,7 @@ import uncompressed_image.defines;
 
 import std.exception;
 
-class Image(T) if (is(T == RgbColor) || is(T == RgbaColor) || is(T == CmyColor) || is(T == CmykColor)) {
+class UncompressedImage(T) if (is(T == RgbColor) || is(T == RgbaColor) || is(T == CmyColor) || is(T == CmykColor)) {
     public this(size_t w, size_t h, T background_source = T()) @safe {
         image_width = w; image_height = h;
 
